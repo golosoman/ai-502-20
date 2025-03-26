@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class HideObjectButton : MonoBehaviour
 {
-    [SerializeField] private GameObject targetObject; // Объект, который нужно скрыть
+    [SerializeField] private GameObject targetObject;
 
     public void HideObject()
     {
@@ -12,7 +12,7 @@ public class HideObjectButton : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Не назначен объект для скрытия!");
+            // Debug.LogWarning("Не назначен объект для скрытия!");
         }
     }
 }

@@ -5,7 +5,6 @@ public class ModalManager : MonoBehaviour
 {
     public static ModalManager Instance;
 
-    // Словарь для соответствия зон и модальных окон
     private Dictionary<string, GameObject> modalWindows = new Dictionary<string, GameObject>();
 
     private void Awake()
@@ -15,11 +14,10 @@ public class ModalManager : MonoBehaviour
         else
             Destroy(gameObject);
 
-        // Находим все модальные окна в сцене и скрываем их
         foreach (Transform child in transform)
         {
             modalWindows[child.gameObject.name] = child.gameObject;
-            child.gameObject.SetActive(false); // Скрываем по умолчанию
+            child.gameObject.SetActive(false);
         }
     }
 
@@ -33,10 +31,11 @@ public class ModalManager : MonoBehaviour
         HoverZone.OnMouseClickZone -= ShowModal;
     }
 
-    // Метод для открытия нужного модального окна
     private void ShowModal(string zoneName)
     {
-        string modalName = "Modal" + zoneName.Replace("Zone", ""); // Преобразуем Zone1 → Modal1
+        CloseAllModals();
+
+        string modalName = "Modal" + zoneName.Replace("Zone", "");
 
         if (modalWindows.TryGetValue(modalName, out GameObject modal))
         {
@@ -44,11 +43,10 @@ public class ModalManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"Модальное окно {modalName} не найдено!");
+            // Debug.LogWarning($"Модальное окно {modalName} не найдено!");
         }
     }
 
-    // Метод для закрытия всех модальных окон
     public void CloseAllModals()
     {
         foreach (var modal in modalWindows.Values)
