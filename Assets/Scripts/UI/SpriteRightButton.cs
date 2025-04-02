@@ -12,6 +12,7 @@ public class SpriteRightButton : MonoBehaviour
     [SerializeField] private GameObject borderObject;
     public static event Action<string> OnRightButtonPressed;
 
+
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
     private Vector3 originalScale;
@@ -25,6 +26,16 @@ public class SpriteRightButton : MonoBehaviour
         UpdateAppearance();
     }
 
+    private void OnEnable()
+    {
+        GameManager.OnResetRightButton += HandleResetRightButton;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnResetRightButton -= HandleResetRightButton;
+    }
+
     void Update()
     {
         if (Input.GetMouseButtonDown(1))
@@ -34,23 +45,41 @@ public class SpriteRightButton : MonoBehaviour
 
             if (hit.collider != null && hit.collider.gameObject == this.gameObject)
             {
-                spriteRenderer.color = pressedColor;
-                transform.localScale = originalScale * pressedScale;
                 ToggleActiveState();
                 OnRightButtonPressed?.Invoke(gameObject.name);
             }
         }
     }
 
-    private void UpdateAppearance()
-    {
-        if (borderObject) borderObject.SetActive(isActive);
-    }
-
     private void ToggleActiveState()
     {
         isActive = !isActive;
+
+        if (isActive)
+        {
+            spriteRenderer.color = pressedColor;
+            transform.localScale = originalScale * pressedScale;
+        }
+        else
+        {
+            spriteRenderer.color = originalColor;
+            transform.localScale = originalScale;
+        }
+
         UpdateAppearance();
     }
 
+    private void HandleResetRightButton(bool resetValue)
+    {
+        isActive = false;
+        spriteRenderer.color = originalColor;
+        transform.localScale = originalScale;
+        UpdateAppearance();
+    }
+
+    private void UpdateAppearance()
+    {
+        if (borderObject)
+            borderObject.SetActive(isActive);
+    }
 }

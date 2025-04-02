@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class SpriteChanger : MonoBehaviour
@@ -11,13 +12,13 @@ public class SpriteChanger : MonoBehaviour
     [Header("Audio Settings")]
     [SerializeField] private AudioClip signalClip;
     private static AudioSource audioSource;
-
-
-    private void Start()
+    private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+    private void Start()
+    {
         spriteRenderer.sprite = Resources.Load<Sprite>(Path.IMAGE_NUMBERS_PATH + imageName);
-
         SetAlpha(inactiveAlpha);
 
         audioSource = GetComponent<AudioSource>();

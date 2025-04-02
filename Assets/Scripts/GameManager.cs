@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     public static event Action<string, bool> OnChangeActiveIndicator;
     public static event Action<bool> OnPlaySound;
     public static event Action<bool> OnIndicatorStateChanged;
+    public static event Action<bool> OnResetRightButton;
     private static List<string> windowsIndicator = new() { GlobalState.baseStateImage, GlobalState.baseStateImage, GlobalState.baseStateImage };
     private Coroutine blinkCoroutine;
     private Coroutine longPressCoroutine;
@@ -23,7 +24,26 @@ public class GameManager : MonoBehaviour
         SpriteLeftButton.OnLeftButtonPressed += HandleOnLeftButtonPressed;
         SpriteLeftButton.OnLeftButtonReleased += HandleOnLeftButtonReleased;
         RotatingSwitch.OnSwitched += HandleOnSwitcher;
+        ActivePanelChecker.OnCheckActive += HandleCheckActive;
         OnIndicatorStateChanged += HandleIndicatorStateChanged;
+    }
+
+    private void HandleCheckActive(string obj)
+    {
+        if (!GlobalState.IsPower())
+        {
+            ResetAllStateRightButton();
+            OnChangeActiveIndicator?.Invoke("ExapleWindow", false);
+        }
+    }
+
+    private void TurnOffPanel()
+    {
+        if (!GlobalState.IsPower())
+        {
+            ResetAllStateRightButton();
+            OnChangeActiveIndicator?.Invoke("ExapleWindow", false);
+        }
     }
 
     private void HandleOnSwitcher(string name, float rotationStep, float currentAngle)
@@ -50,6 +70,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void ResetAllStateRightButton()
+    {
+        OnResetRightButton?.Invoke(true);
+        setStandartIndicatorState();
+        GlobalState.isActivButtonAvt = false;
+        GlobalState.isActivButtonHand = false;
+    }
+
     private void HandleOnLeftButtonPressed(string name)
     {
         if (!GlobalState.IsPower())
@@ -57,6 +85,9 @@ public class GameManager : MonoBehaviour
             OnChangeActiveIndicator?.Invoke("ExapleWindow", false);
             return;
         }
+
+        OnChangeActiveIndicator?.Invoke("ExapleWindow", false);
+        ResetAllStateRightButton();
 
         if (name == SceneObjectNames.BUTTON_HAND)
         {
@@ -118,6 +149,7 @@ public class GameManager : MonoBehaviour
         SpriteLeftButton.OnLeftButtonPressed -= HandleOnLeftButtonPressed;
         SpriteLeftButton.OnLeftButtonReleased -= HandleOnLeftButtonReleased;
         RotatingSwitch.OnSwitched -= HandleOnSwitcher;
+        ActivePanelChecker.OnCheckActive -= HandleCheckActive;
         OnIndicatorStateChanged -= HandleIndicatorStateChanged;
     }
 
@@ -156,7 +188,6 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // TODO В условии есть багуля
         if (GlobalState.IsActivBAvtBHandWithoutORK())
         {
             OnChangeImageIndicator?.Invoke(SceneObjectNames.WINDOW_FIRST, "88");
@@ -165,11 +196,16 @@ public class GameManager : MonoBehaviour
             OnChangeActiveIndicator?.Invoke("ExampleWindows", true);
             return;
         }
+        setStandartIndicatorState();
+        OnChangeActiveIndicator?.Invoke("ExampleWindows", false);
+    }
 
+    private void setStandartIndicatorState()
+    {
         OnChangeImageIndicator?.Invoke(SceneObjectNames.WINDOW_FIRST, windowsIndicator[0]);
         OnChangeImageIndicator?.Invoke(SceneObjectNames.WINDOW_SECOND, windowsIndicator[1]);
         OnChangeImageIndicator?.Invoke(SceneObjectNames.WINDOW_THIRD, windowsIndicator[2]);
-        OnChangeActiveIndicator?.Invoke("ExampleWindows", false);
+
     }
 
     private void HandleSpriteClick(string objectName)
@@ -200,6 +236,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator WaitForLongPress()
     {
+        OnChangeActiveIndicator?.Invoke("ExampleWindows", false);
         yield return new WaitForSeconds(2f);
         if (!GlobalState.IsActivBAvtBHand())
         {

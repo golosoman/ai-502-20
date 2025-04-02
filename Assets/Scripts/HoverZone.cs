@@ -1,12 +1,14 @@
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using System;
 
-public class HoverZone : MonoBehaviour
+public class HoverZone : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public Color hoverColor = new Color(1f, 1f, 0f, 0.3f);
     public Color normalColor = new Color(1f, 1f, 1f, 0f);
 
-    private SpriteRenderer spriteRenderer;
+    private Image image;
 
     public static event Action<string> OnMouseEnterZone;
     public static event Action<string> OnMouseExitZone;
@@ -14,39 +16,36 @@ public class HoverZone : MonoBehaviour
 
     private void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer == null)
+        image = GetComponent<Image>();
+        if (image == null)
         {
-            spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
-
-            Texture2D tex = new Texture2D(1, 1);
-            tex.SetPixel(0, 0, Color.white);
-            tex.Apply();
-            Rect rect = new Rect(0, 0, 1, 1);
-            spriteRenderer.sprite = Sprite.Create(tex, rect, new Vector2(0.5f, 0.5f));
+            Debug.LogError("Компонент Image не найден на объекте " + gameObject.name);
         }
-        spriteRenderer.color = normalColor;
+        else
+        {
+            image.color = normalColor;
+        }
     }
 
-    private void OnMouseEnter()
+    public void OnPointerEnter(PointerEventData eventData)
     {
         OnMouseEnterZone?.Invoke(gameObject.name);
-        if (spriteRenderer != null)
+        if (image != null)
         {
-            spriteRenderer.color = hoverColor;
+            image.color = hoverColor;
         }
     }
 
-    private void OnMouseExit()
+    public void OnPointerExit(PointerEventData eventData)
     {
         OnMouseExitZone?.Invoke(gameObject.name);
-        if (spriteRenderer != null)
+        if (image != null)
         {
-            spriteRenderer.color = normalColor;
+            image.color = normalColor;
         }
     }
 
-    private void OnMouseDown()
+    public void OnPointerClick(PointerEventData eventData)
     {
         OnMouseClickZone?.Invoke(gameObject.name);
     }
